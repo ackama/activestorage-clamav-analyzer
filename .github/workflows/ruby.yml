@@ -18,9 +18,10 @@ jobs:
     - name: Install ClamAV
       run: |
         sudo apt update
-        sudo apt install -y clamav clamav-daemon
+        sudo apt install -y clamav
+        sudo freshclam
     - name: Build and test with Rake
       run: |
         gem install bundler
         bundle install --jobs 4 --retry 3
-        WITH_CLAMD=true bundle exec rake
+        bundle exec rake

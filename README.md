@@ -52,10 +52,60 @@ blob directly to the analyzer:
 ActiveStorage::ClamAV::Analyzer.new(ActiveStorage::Attachment.first.blob).metadata
  =>  {
     "analyzed"=>true,
-    "clamav_detection": true,
-    "clamav_raw_summary": "test.txt: Eicar-Signature FOUND\n\n-------" #...
-    }
+    "clamav": {
+        "detection": true,
+        "output": "test.txt: Eicar-Signature FOUND\n\n-------" #...
+    }}
 ```
+
+## Recipes
+
+#### Scan with ClamD
+
+`clamscan` is the default command, but starts up ClamAV from scratch each time it is run, which takes several seconds.
+Using `clamd` is much faster, but requires you to have started `clamd` ahead of time.
+
+An example of the speedups that are possible:
+
+- `clamscan README.md 9.68s user 0.36s system 96% cpu 10.400 total`
+- `clamdscan README.md 0.01s user 0.00s system 36% cpu 0.026 total`
+
+If your infrastructure set up allows you to run `clamd`, you can adjust the command to use `clamdscan`, which will
+scan files in a fraction of the time:
+
+```ruby
+# config/initializers/active_storage.rb
+ActiveStorage::ClamAV::Analyzer.command = "clamdscan"
+```
+
+#### Scan with a Docker container
+
+ClamAV has comprehensive documentation on [how to scan files in a Docker container](https://docs.clamav.net/manual/Installing/Docker.html).
+If you'd like to do this yourself using the ClamAV analyzer, that's no problem! You'll need to build a custom
+command to mount the blob's tempfile into your container to get the result. `ActiveStorage::ClamAV::Analyzer.command` accepts anything
+that responds to `#call`, so you can customise your command:
+
+```ruby
+# config/initializers/active_storage.rb
+
+clamav_command = (tempfile) -> { "docker run --rm -v #{tempfile.path}:#{tempfile.path} clamav/clamav clamscan" }
+ActiveStorage::ClamAV::Analyzer.command = clamav_command
+```
+
+#### Remove blobs that have a detection
+
+This analyzer records detections, but by default takes no action. Destroying blobs from a library could surprise some library
+users, and also would prevent any investigation of the blob, who uploaded it, and what the exact detection is.
+
+The analyzer does however call a callable (Proc, lambda, etc) when a detection occurs, passing the blob - so it's very simple
+to remove the blob automatically when a detection occurs.
+
+```ruby
+ActiveStorage::ClamAV::Analyzer.on_detection = (blob) -> { blob.destroy }
+```
+
+You can use the same technique to take some other action - perhaps quarantine the blob in some way (make it inactive), or
+add it to a moderation or alert queue.
 
 ## Development
 

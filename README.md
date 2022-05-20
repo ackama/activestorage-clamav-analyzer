@@ -96,10 +96,24 @@ clamav_command = (tempfile) -> { "docker run --rm -v #{tempfile.path}:#{tempfile
 ActiveStorage::ClamAV::Analyzer.command = clamav_command
 ```
 
+#### Report detections as an exception
+
+The `on_detection` setting on `ActiveSupport::ClamAV::Analyzer` can be used to take some
+action when a detection occurs. Your application may not have a defined code path for virus
+detections, but you still want to know when it happens. You can use `on_detection` for this
+to report detections to your exception monitoring tool of choice.
+
+```ruby
+ActiveStorage::ClamAV::Analyzer.on_detection = lambda do |blob|
+  err = StandardError.new("Virus detected in ActiveStorage::Blob ##{blob.id}")
+  ExceptionMonitoringService.capture_exception(err)
+end
+```
+
 #### Remove blobs that have a detection
 
-This analyzer records detections, but by default takes no action. Destroying blobs from a library could surprise some library
-users, and also would prevent any investigation of the blob, who uploaded it, and what the exact detection is.
+This analyzer records detections, but by default takes no action. Destroying blobs from a library could surprise some
+users, stops further analyzers and processing from running, and also would prevent any investigation of the blob, who uploaded it, and what the exact detection is.
 
 The analyzer does however call a callable (Proc, lambda, etc) when a detection occurs, passing the blob - so it's very simple
 to remove the blob automatically when a detection occurs.

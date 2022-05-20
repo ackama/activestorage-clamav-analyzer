@@ -1,5 +1,9 @@
 # ActiveStorage::ClamAV::Analyzer
 
+[![Ruby](https://github.com/ackama/activestorage-clamav-analyzer/actions/workflows/ruby.yml/badge.svg)](https://github.com/ackama/activestorage-clamav-analyzer/actions/workflows/ruby.yml)
+
+[![Gem Version](https://badge.fury.io/rb/activestorage-clamav-analyzer.svg)](https://badge.fury.io/rb/activestorage-clamav-analyzer)
+
 This gem packages an analyzer to perform ClamAV virus scans on uploaded ActiveStorage::Blob objects, adding the results of the scan to the blob metadata.
 
 The actual analyzer is very simple, and can be found in `lib/active_storage/clamav/analyzer` if you would prefer to just drop this in `app/analyzers` in your codebase and prepend it to the analyzers list yourself.

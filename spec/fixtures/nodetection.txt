@@ -1,0 +1,1 @@
+This file will not cause a virus detection with ClamAV

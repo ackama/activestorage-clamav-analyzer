@@ -16,7 +16,9 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
     - name: Install ClamAV
-      run: sudo apt install clamav clamav-daemon
+      run: |
+        sudo apt update
+        sudo apt install -y clamav clamav-daemon
     - name: Build and test with Rake
       run: |
         gem install bundler

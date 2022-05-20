@@ -2,7 +2,7 @@
 
 require 'open3'
 require 'active_storage'
-require 'active_storage/analyzer/image_analyzer'
+require 'active_storage/analyzer'
 
 module ActiveStorage
   module ClamAV

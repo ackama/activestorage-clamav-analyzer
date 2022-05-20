@@ -19,7 +19,8 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y clamav
-        freshclam
+        sudo /etc/init.d/clamav-freshclam stop
+        sudo freshclam
     - name: Build and test with Rake
       run: |
         gem install bundler

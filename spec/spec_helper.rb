@@ -21,7 +21,7 @@ RSpec.configure do |config|
   # since this requires ClamAV to setup and tear down itself, which
   # can take several seconds per test.
   config.before(:suite) do
-    next unless ENV['WITH_CLAMD'] == 'true'
+    next unless ENV.fetch('WITH_CLAMD', nil) == 'true'
 
     puts 'Starting ClamD'
     `clamd` # <- Starts in daemon mode then exits
@@ -31,7 +31,7 @@ RSpec.configure do |config|
   end
 
   config.after(:suite) do
-    next unless ENV['WITH_CLAMD'] == 'true'
+    next unless ENV.fetch('WITH_CLAMD', nil) == 'true'
 
     puts 'Stopping ClamD'
     `kill -15 $(pgrep clamd)`
